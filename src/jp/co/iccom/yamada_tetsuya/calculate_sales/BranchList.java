@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 public class BranchList {
 	public static void main(String[] args) {
@@ -51,6 +52,41 @@ public class BranchList {
 			br.close();
 		} catch(IOException e) {
 			System.out.println("商品定義ファイルが存在しません");
+		}
+
+
+		HashMap<String,String> proseed = new HashMap<String,String>();
+		try {
+
+			File dir = new File(args[0]);
+			File[] files  = dir.listFiles();
+			LinkedList<String> filelist = new LinkedList<String>();
+
+			for(int i = 0;i < files.length; i++) {
+				File file = files[i];
+				//System.out.println(file);
+				//ここまでだとファイルが格納されているルートがでる
+				String filename = file.getName();
+				//System.out.println(filename);
+				//ここでFileの要素をString化する(ファイル以前のルートが消える)
+				if(filename.matches("([0-9]{8}).rcd$")){
+					filelist.add(filename);
+					//System.out.println(filename);
+				}
+			}
+			for(int i = 0;i < filelist.size(); i++) {
+				String str = filelist.get(i).substring(0,8);
+
+				String stl = filelist.get(i + 1).substring(0,8);
+				int a = Integer.parseInt(str);
+				int b = Integer.parseInt(stl);
+				if( b - a != 1) {
+					 System.out.println("売上ファイルが連番になっていません");
+					return;
+				}
+			}
+		} catch(NumberFormatException e) {
+			e.printStackTrace();
 		}
 	}
 }
