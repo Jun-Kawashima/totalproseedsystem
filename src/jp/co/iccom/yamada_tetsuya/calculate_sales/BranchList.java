@@ -1,11 +1,13 @@
 package jp.co.iccom.yamada_tetsuya.calculate_sales;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 
 public class BranchList {
 	public static void main(String[] args) {
@@ -58,7 +60,7 @@ public class BranchList {
 		}
 
 		HashMap<String,String> proseed = new HashMap<String,String>();
-		LinkedList<String> filelist = new LinkedList<String>();
+		ArrayList<String> filelist = new ArrayList<String>();
 		try {
 			File dir = new File(args[0]);
 			File[] files  = dir.listFiles();
@@ -89,36 +91,58 @@ public class BranchList {
 			e.printStackTrace();
 		}
 
-		LinkedList<String> salefile = new LinkedList<String>();
 		HashMap<String,String> earnings = new HashMap<String,String>();
 		try {
 			File dir = new File(args[0]);
 			File[] files  = dir.listFiles();
 			for(int i = 0;i < files.length; i++) {
+				ArrayList<String> salefile = new ArrayList<String>();
 				File file = new File(args[0],filelist.get(i));
 				FileReader fr = new FileReader(file);
 				BufferedReader br = new BufferedReader(fr);
-				String s;
-				while((s = br.readLine()) != null) {
-					String str = s;
-					filelist.add(str);
+				String str;
+				while((str = br.readLine()) != null) {
+					salefile.add(str);
 				}
-				System.out.println(filelist);
-				String branchcode = proseed.get(0);
-				String commoditycode = proseed.get(1);
-				String price = proseed.get(2);
+				if(salefile.size() != 3){
+					System.out.println(file.getName()+"のフォーマットが不正です");
+				}
+				String branchcode = salefile.get(0);
+				String commoditycode = salefile.get(1);
+				String price = salefile.get(2);
+				if(!branch.containsKey(branchcode)){
+					System.out.println(file.getName()+"の支店コードが不正です");
+				}
+				if(!commodity.containsKey(commoditycode)) {
+					System.out.println(file.getName()+"の商品コードが不正です");
+				}
 				long money = Long.parseLong(price);
-				long sum = branchsale.get(1);
-
+				long branchsum = branchsale.get(branchcode);
+				long commoditysum = commoditysale.get(commoditycode);
+				branchsum += money;
+				commoditysum += money;
 				branchsale.put(branchcode,money);
-					System.out.println(sum);
-				commoditysale.put(branchcode, money);
-				if(sum > 999999999L){
-					//System.out.println("合計金額が10桁を超えました");
+				commoditysale.put(commoditycode, money);
+				if(branchsum > 9999999999L){
+					System.out.println("合計金額が10桁を超えました");
 				}
 			}
 		}catch(Exception e) {
-
+		}
+		HashMap<String,String> branchout = new HashMap<String,String>();
+		try {
+			File writefile = new File(args[0],"branch.out");
+			FileWriter fw = new FileWriter(writefile);
+			BufferedWriter bw = new BufferedWriter(fw);
+			String str;
+			String Writebranch =branchout.get();
+			String Writecommodity = branchout.get(0);
+			for(  = 0;  <.() ; ++){
+				System.out.println("支店コード"+","+"支店名"+","+"金額");
+			}
+				bw.close();
+		}} catch (IOException e) {
+			System.out.println(e);
 		}
 	}
 }
