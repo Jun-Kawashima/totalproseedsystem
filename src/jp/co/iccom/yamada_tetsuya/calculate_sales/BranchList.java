@@ -3,6 +3,7 @@ package jp.co.iccom.yamada_tetsuya.calculate_sales;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -37,11 +38,10 @@ public class BranchList {
 				//System.out.println(items[1]);
 			}
 			br.close();
-		} catch(IOException e) {
+		} catch(FileNotFoundException e) {
 			System.out.println("支店定義ファイルが存在しません");
 			return;
-		}
-		 catch(Exception e) {
+		} catch(IOException e) {
 			 System.out.println("予期せぬエラーが発生しました");
 			 return;
 		}
@@ -63,11 +63,11 @@ public class BranchList {
 				//System.out.println(items[1]);
 			}
 			br.close();
-		} catch(IOException e) {
+		} catch(FileNotFoundException e) {
 			System.out.println("商品定義ファイルが存在しません");
 			return;
 			
-		} catch(Exception e) {
+		} catch(IOException e) {
 			 System.out.println("予期せぬエラーが発生しました");
 			 return;
 		}
