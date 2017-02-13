@@ -6,12 +6,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.security.KeyStore.Entry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class BranchList {
 	public static void main(String[] args) {
@@ -33,14 +33,18 @@ public class BranchList {
 				}
 				branch.put(items[0], items[1]);
 				branchsale.put(items[0], 0L);
-				System.out.println(items[0]);
-				System.out.println(items[1]);
+				//System.out.println(items[0]);
+				//System.out.println(items[1]);
 			}
 			br.close();
 		} catch(IOException e) {
 			System.out.println("支店定義ファイルが存在しません");
+			return;
 		}
-
+		 catch(Exception e) {
+			 System.out.println("予期せぬエラーが発生しました");
+			 return;
+		}
 		try {
 			File file = new File(args[0],"commodity.lst");
 			FileReader fr = new FileReader(file);
@@ -61,6 +65,11 @@ public class BranchList {
 			br.close();
 		} catch(IOException e) {
 			System.out.println("商品定義ファイルが存在しません");
+			return;
+			
+		} catch(Exception e) {
+			 System.out.println("予期せぬエラーが発生しました");
+			 return;
 		}
 
 		HashMap<String,String> proseed = new HashMap<String,String>();
@@ -92,14 +101,15 @@ public class BranchList {
 				}
 			}
 		} catch(NumberFormatException e) {
-			e.printStackTrace();
+			System.out.println("予期せぬエラーが発生しました");
+			return;
 		}
 
 		HashMap<String,String> earnings = new HashMap<String,String>();
 		try {
 			File dir = new File(args[0]);
 			File[] files  = dir.listFiles();
-			for(int i = 0;i < files.length; i++) {
+			for(int i = 0;i < filelist.size(); i++) {
 				ArrayList<String> salefile = new ArrayList<String>();
 				File file = new File(args[0],filelist.get(i));
 				FileReader fr = new FileReader(file);
@@ -129,12 +139,19 @@ public class BranchList {
 				commoditysale.put(commoditycode, money);
 				if(branchsum > 9999999999L){
 					System.out.println("合計金額が10桁を超えました");
+					return;
 				}
 			}
-		}catch(Exception e) {
+		} catch(IOException e) {
+			System.out.println("予期せぬエラーが発生しました");
+		
+			return;
+		} catch(IndexOutOfBoundsException e) {
+			System.out.println("予期せぬエラーが発生しました");
+			return;
 		}
 		ArrayList<String> salefile = new ArrayList<String>();
-		HashMap<String,String> branchout = new HashMap<String,String>();
+		HashMap<String,Long> branchout = new HashMap<String,Long>();
 		try {
 			File writefile = new File(args[0],"branch.out");
 			FileWriter fw = new FileWriter(writefile);
@@ -146,12 +163,37 @@ public class BranchList {
 				return ((Long)entry2.getValue()).compareTo((Long)entry1.getValue());
 				}
 			});
-			for(Entry<String,Long> s: entries){
-				System.out.println("s.getKey():" + s.getKey());
-				System.out.println("s.getValue() :" + s.getValue());
+			for(Entry<String, Long> s: entries){
+				bw.write(s.getKey() + "," + branch.get(s.getKey()) + "," +s.getValue());
+				bw.newLine();
 			}
+			bw.close();
 		} catch (IOException e) {
-			System.out.println(e);
+			System.out.println("予期せぬエラーが発生しました");
+			return;
+		}
+		
+		ArrayList<String> salefile2 = new ArrayList<String>();
+		HashMap<String,Long> commodityout = new HashMap<String,Long>();
+		try {
+			File writefile = new File(args[0],"commodity.out");
+			FileWriter fw = new FileWriter(writefile);
+			BufferedWriter bw = new BufferedWriter(fw);
+			ArrayList<Map.Entry<String,Long>> entries = new ArrayList<Map.Entry<String,Long>>(commoditysale.entrySet());
+			Collections.sort(entries, new Comparator<Map.Entry<String,Long>>() {
+
+				public int compare(Entry<String,Long> entry1,Entry<String,Long> entry2) {
+				return ((Long)entry2.getValue()).compareTo((Long)entry1.getValue());
+				}
+			});
+			for(Entry<String, Long> s: entries){
+				bw.write(s.getKey() + "," + commodity.get(s.getKey()) + "," +s.getValue());
+				bw.newLine();
+			}
+			bw.close();
+		} catch (IOException e) {
+			System.out.println("予期せぬエラーが発生しました");
+			return;
 		}
 	}
 }
