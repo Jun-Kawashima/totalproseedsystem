@@ -14,25 +14,25 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class Addsystem {
+public class Calcsale {
 	public static void main(String[] args) {
 		HashMap<String,String> branch = new HashMap<String,String>();
 		HashMap<String,Long> branchsale = new HashMap<String,Long>();
 		HashMap<String,String> commodity = new HashMap<String,String>();
 		HashMap<String,Long> commoditysale = new HashMap<String,Long>();
-		try {
-			File file = new File(args[0],"branch.lst");
+		try {//支店定義ファイル
+			File file = new File(args[0],"branch.lst");//ファイル読み込み
 			FileReader fr = new FileReader(file);
 			BufferedReader br = new BufferedReader(fr);
 			String s;
-
-			while((s = br.readLine()) != null) {
+			//
+			while((s = br.readLine()) != null) {//フォーマット判定
 				String[] items = s.split(",");
 				if(items.length != 2 || !items[0].matches("[0-9]{3}")) {
-					System.out.println("支店定義ファイルフォーマットが不正です");
+					System.out.println("支店定義ファイルのフォーマットが不正です");
 					return;
 				}
-				branch.put(items[0], items[1]);
+				branch.put(items[0], items[1]);//Map置く
 				branchsale.put(items[0], 0L);
 				//System.out.println(items[0]);
 				//System.out.println(items[1]);
@@ -45,19 +45,19 @@ public class Addsystem {
 			 System.out.println("予期せぬエラーが発生しました");
 			 return;
 		}
-		try {
-			File file = new File(args[0],"commodity.lst");
+		try {//商品定義
+			File file = new File(args[0],"commodity.lst");//ファイル読み込み
 			FileReader fr = new FileReader(file);
 			BufferedReader br = new BufferedReader(fr);
 			String s;
 
-			while((s = br.readLine()) != null) {
+			while((s = br.readLine()) != null) {//フォーマット判定
 				String[] items = s.split(",");
 				if(items.length != 2 || !items[0].matches("[a-zA-Z0-9]{8}$")) {
-					System.out.println("商品定義ファイルフォーマットが不正です");
+					System.out.println("商品定義ファイルのフォーマットが不正です");
 					return;
 				}
-				commodity.put(items[0], items[1]);
+				commodity.put(items[0], items[1]);//Map置く
 				commoditysale.put(items[0], 0L);
 				//System.out.println(items[0]);
 				//System.out.println(items[1]);
@@ -66,37 +66,32 @@ public class Addsystem {
 		} catch(FileNotFoundException e) {
 			System.out.println("商品定義ファイルが存在しません");
 			return;
-			
+
 		} catch(IOException e) {
 			 System.out.println("予期せぬエラーが発生しました");
 			 return;
 		}
-
+		//売上ファイル連番判定
 		HashMap<String,String> proseed = new HashMap<String,String>();
 		ArrayList<String> filelist = new ArrayList<String>();
 		try {
-			File dir = new File(args[0]);
+			File dir = new File(args[0]);//ディレクトリ
 			File[] files  = dir.listFiles();
 
 			for(int i = 0;i + 1< files.length; i++) {
-				File file = files[i];
-				//System.out.println(file);
-				//ここまでだとファイルが格納されているルートがでる
-				String filename = file.getName();
-				//System.out.println(filename);
-				//ここでFileの要素をString化する(ファイル以前のルートが消える)
-				if(filename.matches("([0-9]{8}).rcd$")){
-					filelist.add(filename);
-					//System.out.println(filename);
+				File file = files[i];  //ここまでだとファイルが格納されているルートがでる
+				String filename = file.getName();  //ここでFileの要素をString化する(ファイル以前のルートが消える)
+				if(filename.matches("([0-9]{8}).rcd$")){//数字8桁且つrcdファイルの判定(それ以外は候補から外れる)
+					filelist.add(filename);//filelistに加える
 				}
 			}
-			for(int i = 0;i + 1 < filelist.size(); i++) {
-				String str = filelist.get(i).substring(0,8);
+			for(int i = 0;i + 1 < filelist.size(); i++) {//filelistの要素を存在する分だけ羅列
+				String str = filelist.get(i).substring(0,8);//数字8桁
 				String stl = filelist.get(i + 1).substring(0,8);
-				int a = Integer.parseInt(str);
-				int b = Integer.parseInt(stl);
-				if( b - a != 1) {
-					 System.out.println("売上ファイルが連番になっていません");
+				int a = Integer.parseInt(str);//参照a
+				int b = Integer.parseInt(stl);//参照b
+				if( b - a != 1) {//もし、b-aが1でない＝ファイル間の空き
+					 System.out.println("売上ファイル名が連番になっていません");
 					break;
 				}
 			}
@@ -104,12 +99,12 @@ public class Addsystem {
 			System.out.println("予期せぬエラーが発生しました");
 			return;
 		}
-
+		//売上ファイルの中身の判定
 		HashMap<String,String> earnings = new HashMap<String,String>();
 		try {
 			File dir = new File(args[0]);
 			File[] files  = dir.listFiles();
-			for(int i = 0;i < filelist.size(); i++) {
+			for(int i = 0;i < filelist.size(); i++) {//売上ファイルのリストを存在する分羅列
 				ArrayList<String> salefile = new ArrayList<String>();
 				File file = new File(args[0],filelist.get(i));
 				FileReader fr = new FileReader(file);
@@ -118,13 +113,13 @@ public class Addsystem {
 				while((str = br.readLine()) != null) {
 					salefile.add(str);
 				}
-				if(salefile.size() != 3){
+				if(salefile.size() != 3){//売上ファイル内容が3行ではない(フォーマットの判定)
 					System.out.println(file.getName()+"のフォーマットが不正です");
 				}
-				String branchcode = salefile.get(0);
-				String commoditycode = salefile.get(1);
+				String branchcode = salefile.get(0);//支店コード
+				String commoditycode = salefile.get(1);//商品コード
 				String price = salefile.get(2);
-				if(!branch.containsKey(branchcode)){
+				if(!branch.containsKey(branchcode)){//
 					System.out.println(file.getName()+"の支店コードが不正です");
 				}
 				if(!commodity.containsKey(commoditycode)) {
@@ -135,8 +130,8 @@ public class Addsystem {
 				long commoditysum = commoditysale.get(commoditycode);
 				branchsum += money;
 				commoditysum += money;
-				branchsale.put(branchcode,money);
-				commoditysale.put(commoditycode, money);
+				branchsale.put(branchcode,branchsum);
+				commoditysale.put(commoditycode, commoditysum);
 				if(branchsum > 9999999999L){
 					System.out.println("合計金額が10桁を超えました");
 					return;
@@ -144,18 +139,19 @@ public class Addsystem {
 			}
 		} catch(IOException e) {
 			System.out.println("予期せぬエラーが発生しました");
-		
+
 			return;
 		} catch(IndexOutOfBoundsException e) {
 			System.out.println("予期せぬエラーが発生しました");
 			return;
 		}
-		ArrayList<String> salefile = new ArrayList<String>();
-		HashMap<String,Long> branchout = new HashMap<String,Long>();
+//		ArrayList<String> salefile = new ArrayList<String>();
+//		HashMap<String,Long> branchout = new HashMap<String,Long>();
+		BufferedWriter bw = null;
 		try {
 			File writefile = new File(args[0],"branch.out");
 			FileWriter fw = new FileWriter(writefile);
-			BufferedWriter bw = new BufferedWriter(fw);
+			bw = new BufferedWriter(fw);
 			ArrayList<Map.Entry<String,Long>> entries = new ArrayList<Map.Entry<String,Long>>(branchsale.entrySet());
 			Collections.sort(entries, new Comparator<Map.Entry<String,Long>>() {
 
@@ -167,18 +163,29 @@ public class Addsystem {
 				bw.write(s.getKey() + "," + branch.get(s.getKey()) + "," +s.getValue());
 				bw.newLine();
 			}
-			bw.close();
 		} catch (IOException e) {
 			System.out.println("予期せぬエラーが発生しました");
 			return;
+		} finally{
+			if(bw !=null){
+				try {
+					bw.close();
+				} catch (IOException e) {
+					System.out.println("予期せぬエラーが発生しました");
+					return;
+				}
+			}
 		}
-		
-		ArrayList<String> salefile2 = new ArrayList<String>();
-		HashMap<String,Long> commodityout = new HashMap<String,Long>();
+
+
+
+//		ArrayList<String> salefile2 = new ArrayList<String>();
+//		HashMap<String,Long> commodityout = new HashMap<String,Long>();
+		bw = null;
 		try {
-			File writefile = new File(args[0],"commodity.out");
+			File writefile = new File(args[0], "commodity.out");
 			FileWriter fw = new FileWriter(writefile);
-			BufferedWriter bw = new BufferedWriter(fw);
+			bw = new BufferedWriter(fw);
 			ArrayList<Map.Entry<String,Long>> entries = new ArrayList<Map.Entry<String,Long>>(commoditysale.entrySet());
 			Collections.sort(entries, new Comparator<Map.Entry<String,Long>>() {
 
@@ -187,13 +194,21 @@ public class Addsystem {
 				}
 			});
 			for(Entry<String, Long> s: entries){
-				bw.write(s.getKey() + "," + commodity.get(s.getKey()) + "," +s.getValue());
+				bw.write(s.getKey() + "," + commodity.get(s.getKey()) + "," + s.getValue());
 				bw.newLine();
 			}
-			bw.close();
 		} catch (IOException e) {
 			System.out.println("予期せぬエラーが発生しました");
 			return;
+		} finally {
+			if(bw !=null){
+				try {
+					bw.close();
+				} catch (IOException e) {
+					System.out.println("予期せぬエラーが発生しました");
+					return;
+				}
+			}
 		}
 	}
 }
