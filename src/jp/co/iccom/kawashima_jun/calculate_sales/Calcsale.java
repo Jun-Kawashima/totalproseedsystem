@@ -39,7 +39,7 @@ public class Calcsale {
 			for(int i = 0; i < files.length; i++) {
 				File file = files[i];  //ここまでだとファイルが格納されているルートがでる
 				String fileName = file.getName();  //ここでFileの要素をString化する(ファイル以前のルートが消える)
-				if(fileName.matches("([0-9]{8}).rcd$")){//数字8桁且つrcdファイルの判定(それ以外は候補から外れる)
+				if(fileName.matches("([0-9]{8}).rcd$") && file.isFile()){//数字8桁且つrcdファイルの判定(それ以外は候補から外れる)
 					fileList.add(fileName);//filelistに加える
 				}
 			}
@@ -120,7 +120,7 @@ public class Calcsale {
 		try {//支店定義ファイル
 			File file = new File(root,fileName);//ファイル読み込み
 			if(!file.exists()){
-				System.out.println("予期せぬエラーが発生しました");
+				System.out.println(name+ "定義ファイルが存在しません");
 				return false;
 			}
 				FileReader fr = new FileReader(file);
