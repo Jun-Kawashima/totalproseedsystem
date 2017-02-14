@@ -15,6 +15,10 @@ import java.util.Map.Entry;
 
 public class Calcsale {
 	public static void main(String[] args) {
+		if(args.length != 1){
+			System.out.println("予期せぬエラーが発生しました");
+			return;
+		}
 		HashMap<String,String> branch = new HashMap<String,String>();
 		HashMap<String,Long> branchSale = new HashMap<String,Long>();
 		HashMap<String,String> commodity = new HashMap<String,String>();
@@ -42,9 +46,9 @@ public class Calcsale {
 			for(int i = 0; i < fileList.size()-1; i++) {//filelistの要素を存在する分だけ羅列
 				String str = fileList.get(i).substring(0, 8);//数字8桁
 				String stl = fileList.get(i + 1).substring(0, 8);
-				int back = Integer.parseInt(str);//参照a
-				int front = Integer.parseInt(stl);//参照b
-				if( back - front != 1) {//もし、b-aが1でない＝ファイル間の空き
+				int now = Integer.parseInt(str);//参照a
+				int next = Integer.parseInt(stl);//参照b
+				if( next - now != 1) {//もし、b-aが1でない＝ファイル間の空き
 					 System.out.println("売上ファイル名が連番になっていません");
 					 return;
 				}
@@ -117,19 +121,19 @@ public class Calcsale {
 			File file = new File(root,fileName);//ファイル読み込み
 			if(!file.exists()){
 				System.out.println("予期せぬエラーが発生しました");
-			} else {
+				return false;
+			}
 				FileReader fr = new FileReader(file);
 			br = new BufferedReader(fr);
-			String s;
-			while((s = br.readLine()) != null) {//フォーマット判定
-				String[] items = s.split(",");
+			String str;
+			while((str = br.readLine()) != null) {//フォーマット判定
+				String[] items = str.split(",");
 				if(items.length != 2 || !items[0].matches(format)) {
 					System.out.println(name+ "定義ファイルのフォーマットが不正です");
 					return false;
 				}
 				branchMap.put(items[0], items[1]);//Map置く
 				branchsaleMap.put(items[0], 0L);
-			}
 			}
 		} catch(IOException e) {
 			 System.out.println("予期せぬエラーが発生しました");
