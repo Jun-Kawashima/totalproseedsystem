@@ -20,57 +20,12 @@ public class Calcsale {
 		HashMap<String,Long> branchsale = new HashMap<String,Long>();
 		HashMap<String,String> commodity = new HashMap<String,String>();
 		HashMap<String,Long> commoditysale = new HashMap<String,Long>();
-		try {//支店定義ファイル
-			File file = new File(args[0],"branch.lst");//ファイル読み込み
-			FileReader fr = new FileReader(file);
-			BufferedReader br = new BufferedReader(fr);
-			String s;
-			//
-			while((s = br.readLine()) != null) {//フォーマット判定
-				String[] items = s.split(",");
-				if(items.length != 2 || !items[0].matches("[0-9]{3}")) {
-					System.out.println("支店定義ファイルのフォーマットが不正です");
-					return;
-				}
-				branch.put(items[0], items[1]);//Map置く
-				branchsale.put(items[0], 0L);
-				//System.out.println(items[0]);
-				//System.out.println(items[1]);
-			}
-			br.close();
-		} catch(FileNotFoundException e) {
-			System.out.println("支店定義ファイルが存在しません");
-			return;
-		} catch(IOException e) {
-			 System.out.println("予期せぬエラーが発生しました");
-			 return;
-		}
-		try {//商品定義
-			File file = new File(args[0],"commodity.lst");//ファイル読み込み
-			FileReader fr = new FileReader(file);
-			BufferedReader br = new BufferedReader(fr);
-			String s;
 
-			while((s = br.readLine()) != null) {//フォーマット判定
-				String[] items = s.split(",");
-				if(items.length != 2 || !items[0].matches("[a-zA-Z0-9]{8}$")) {
-					System.out.println("商品定義ファイルのフォーマットが不正です");
-					return;
-				}
-				commodity.put(items[0], items[1]);//Map置く
-				commoditysale.put(items[0], 0L);
-				//System.out.println(items[0]);
-				//System.out.println(items[1]);
-			}
-			br.close();
-		} catch(FileNotFoundException e) {
-			System.out.println("商品定義ファイルが存在しません");
+		if(!readfile(args[0] , "branch.lst" , "[0-9]{3}" , "支店" , branch,branchsale))
+			return;
+		if(!readfile(args[0] , "commodity.lst" , "[a-zA-Z0-9]{8}$" , "商品" , commodity,commoditysale))
 			return;
 
-		} catch(IOException e) {
-			 System.out.println("予期せぬエラーが発生しました");
-			 return;
-		}
 		//売上ファイル連番判定
 		HashMap<String,String> proseed = new HashMap<String,String>();
 		ArrayList<String> filelist = new ArrayList<String>();
@@ -145,14 +100,49 @@ public class Calcsale {
 			System.out.println("予期せぬエラーが発生しました");
 			return;
 		}
-//		ArrayList<String> salefile = new ArrayList<String>();
-//		HashMap<String,Long> branchout = new HashMap<String,Long>();
+		if(!output(args[0],"branch.out",branchsale,branch)){
+			return;
+		}
+		if(!output(args[0],"commodity.out",commoditysale,commodity)){
+			return;
+		}
+	}
+
+	public static boolean readfile(String aaa , String fileName , String format , String name , HashMap<String,String> ccc,HashMap<String,Long> ddd){
+		try {//支店定義ファイル
+			File file = new File(aaa,fileName);//ファイル読み込み
+			FileReader fr = new FileReader(file);
+			BufferedReader br = new BufferedReader(fr);
+			String s;
+
+			while((s = br.readLine()) != null) {//フォーマット判定
+				String[] items = s.split(",");
+				if(items.length != 2 || !items[0].matches(format)) {
+					System.out.println(name+"定義ファイルのフォーマットが不正です");
+					return false;
+				}
+				ccc.put(items[0], items[1]);//Map置く
+				ddd.put(items[0], 0L);
+				//System.out.println(items[0]);
+				//System.out.println(items[1]);
+			}
+			br.close();
+		} catch(FileNotFoundException e) {
+			System.out.println(name+"定義ファイルが存在しません");
+			return false;
+		} catch(IOException e) {
+			 System.out.println("予期せぬエラーが発生しました");
+			return false;
+		}
+		return true;
+	}
+	public static boolean output(String aaaa , String fileName , HashMap<String,Long> bbb ,HashMap<String,String> cc){
 		BufferedWriter bw = null;
 		try {
-			File writefile = new File(args[0],"branch.out");
+			File writefile = new File(aaaa,fileName);
 			FileWriter fw = new FileWriter(writefile);
 			bw = new BufferedWriter(fw);
-			ArrayList<Map.Entry<String,Long>> entries = new ArrayList<Map.Entry<String,Long>>(branchsale.entrySet());
+			ArrayList<Map.Entry<String,Long>> entries = new ArrayList<Map.Entry<String,Long>> (bbb.entrySet());
 			Collections.sort(entries, new Comparator<Map.Entry<String,Long>>() {
 
 				public int compare(Entry<String,Long> entry1,Entry<String,Long> entry2) {
@@ -160,55 +150,22 @@ public class Calcsale {
 				}
 			});
 			for(Entry<String, Long> s: entries){
-				bw.write(s.getKey() + "," + branch.get(s.getKey()) + "," +s.getValue());
+				bw.write(s.getKey() + "," + cc.get(s.getKey()) + "," +s.getValue());
 				bw.newLine();
 			}
 		} catch (IOException e) {
 			System.out.println("予期せぬエラーが発生しました");
-			return;
+			return false;
 		} finally{
 			if(bw !=null){
 				try {
 					bw.close();
 				} catch (IOException e) {
 					System.out.println("予期せぬエラーが発生しました");
-					return;
+					return false;
 				}
 			}
 		}
-
-
-
-//		ArrayList<String> salefile2 = new ArrayList<String>();
-//		HashMap<String,Long> commodityout = new HashMap<String,Long>();
-		bw = null;
-		try {
-			File writefile = new File(args[0], "commodity.out");
-			FileWriter fw = new FileWriter(writefile);
-			bw = new BufferedWriter(fw);
-			ArrayList<Map.Entry<String,Long>> entries = new ArrayList<Map.Entry<String,Long>>(commoditysale.entrySet());
-			Collections.sort(entries, new Comparator<Map.Entry<String,Long>>() {
-
-				public int compare(Entry<String,Long> entry1,Entry<String,Long> entry2) {
-				return ((Long)entry2.getValue()).compareTo((Long)entry1.getValue());
-				}
-			});
-			for(Entry<String, Long> s: entries){
-				bw.write(s.getKey() + "," + commodity.get(s.getKey()) + "," + s.getValue());
-				bw.newLine();
-			}
-		} catch (IOException e) {
-			System.out.println("予期せぬエラーが発生しました");
-			return;
-		} finally {
-			if(bw !=null){
-				try {
-					bw.close();
-				} catch (IOException e) {
-					System.out.println("予期せぬエラーが発生しました");
-					return;
-				}
-			}
-		}
+		return true;
 	}
 }
