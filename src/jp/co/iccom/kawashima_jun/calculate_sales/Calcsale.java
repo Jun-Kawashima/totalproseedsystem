@@ -19,36 +19,40 @@ public class Calcsale {
 			System.out.println("予期せぬエラーが発生しました");
 			return;
 		}
-		HashMap<String, String> branch = new HashMap<String, String>();
-		HashMap<String, Long> branchSale = new HashMap<String, Long>();
-		HashMap<String, String> commodity = new HashMap<String, String>();
-		HashMap<String, Long> commoditySale = new HashMap<String, Long>();
+		HashMap<String, String> branchName = new HashMap<String, String>();
+		HashMap<String, Long> branchSales = new HashMap<String, Long>();
+		HashMap<String, String> commodityName = new HashMap<String, String>();
+		HashMap<String, Long> commoditySales = new HashMap<String, Long>();
 
-		if(!readFile(args[0], "branch.lst", "[0-9]{3}", "支店", branch, branchSale))
+		if(!readFile(args[0], "branch.lst", "[0-9]{3}", "支店", branchName, branchSales))
 			return;
-		if(!readFile(args[0], "commodity.lst", "[a-zA-Z0-9]{8}$", "商品", commodity, commoditySale))
+		if(!readFile(args[0], "commodity.lst", "[a-zA-Z0-9]{8}$", "商品", commodityName, commoditySales))
 			return;
 
 		//売上ファイル連番判定
-		HashMap<String, String> proseed = new HashMap<String, String>();
+		HashMap<String, String> proceed = new HashMap<String, String>();
 		ArrayList<String> fileList = new ArrayList<String>();
 		try {
 			File dir = new File(args[0]);//ディレクトリ
 			File[] files  = dir.listFiles();
-
 			for(int i = 0; i < files.length; i++) {
-				File file = files[i];  //ここまでだとファイルが格納されているルートがでる
-				String fileName = file.getName();  //ここでFileの要素をString化する(ファイル以前のルートが消える)
-				if(fileName.matches("([0-9]{8}).rcd$") && file.isFile()){//数字8桁且つrcdファイルの判定(それ以外は候補から外れる)
-					fileList.add(fileName);//filelistに加える
+				//ここまでだとファイルが格納されているルートがでる
+				File file = files[i];
+				//ここでFileの要素をString化する(ファイル以前のルートが消える)
+				String fileName = file.getName();
+				//数字8桁且つrcdファイルの判定(それ以外は候補から外れる)
+				if(fileName.matches("([0-9]{8}).rcd$") && file.isFile()){
+					//filelistに加える
+					fileList.add(fileName);
 				}
 			}
-			for(int i = 0; i < fileList.size() - 1; i++) {//filelistの要素を存在する分だけ羅列
-				String str = fileList.get(i).substring(0, 8);//数字8桁
+			for(int i = 0; i < fileList.size() - 1; i++) {
+				String str = fileList.get(i).substring(0, 8);
 				String stl = fileList.get(i + 1).substring(0, 8);
-				int now = Integer.parseInt(str);//参照a
-				int next = Integer.parseInt(stl);//参照b
-				if( next - now != 1) {//もし、b-aが1でない＝ファイル間の空き
+				int now = Integer.parseInt(str);
+				int next = Integer.parseInt(stl);
+				//もし、next - now が1でない＝ファイル間の空き
+				if( next - now != 1) {
 					 System.out.println("売上ファイル名が連番になっていません");
 					 return;
 				}
@@ -60,9 +64,7 @@ public class Calcsale {
 		//売上ファイルの中身の判定
 		HashMap<String, String> earnings = new HashMap<String, String>();
 		try {
-			File dir = new File(args[0]);
-			File[] files  = dir.listFiles();
-			for(int i = 0; i < fileList.size(); i++) {//売上ファイルのリストを存在する分羅列
+			for(int i = 0; i < fileList.size(); i++) {
 				ArrayList<String> saleFile = new ArrayList<String>();
 				File file = new File(args[0], fileList.get(i));
 				FileReader fr = new FileReader(file);
@@ -71,24 +73,28 @@ public class Calcsale {
 				while((str = br.readLine()) != null) {
 					saleFile.add(str);
 				}
-				if(saleFile.size() != 3){//売上ファイル内容が3行ではない(フォーマットの判定)
+				br.close();
+				//売上ファイル内容が3行ではない(フォーマットの判定)
+				if(saleFile.size() != 3){
 					System.out.println(file.getName()+"のフォーマットが不正です");
 					return;
 				}
-				String branchCode = saleFile.get(0);//支店コード
-				if(!branch.containsKey(branchCode)){
+				//支店コード
+				String branchCode = saleFile.get(0);
+				if(!branchName.containsKey(branchCode)){
 					System.out.println(file.getName() + "の支店コードが不正です");
 					return;
 				}
-				String commodityCode = saleFile.get(1);//商品コード
-				if(!commodity.containsKey(commodityCode)) {
+				//商品コード
+				String commodityCode = saleFile.get(1);
+				if(!commodityName.containsKey(commodityCode)) {
 					System.out.println(file.getName() + "の商品コードが不正です");
 					return;
 				}
 				String price = saleFile.get(2);
 				long money = Long.parseLong(price);
-				long branchSum = branchSale.get(branchCode);
-				long commoditySum = commoditySale.get(commodityCode);
+				long branchSum = branchSales.get(branchCode);
+				long commoditySum = commoditySales.get(commodityCode);
 				branchSum += money;
 				if(branchSum > 9999999999L) {
 					System.out.println("合計金額が10桁を超えました");
@@ -99,8 +105,8 @@ public class Calcsale {
 					System.out.println("合計金額が10桁を超えました");
 					return;
 				}
-				branchSale.put(branchCode, branchSum);
-				commoditySale.put(commodityCode, commoditySum);
+				branchSales.put(branchCode, branchSum);
+				commoditySales.put(commodityCode, commoditySum);
 			}
 		} catch(NumberFormatException e) {
 			System.out.println("予期せぬエラーが発生しました");
@@ -110,33 +116,35 @@ public class Calcsale {
 			return;
 		}
 
-		if(!output(args[0], "branch.out", branchSale, branch))
+		if(!output(args[0], "branch.out", branchSales, branchName))
 			return;
-		if(!output(args[0], "commodity.out", commoditySale, commodity))
+		if(!output(args[0], "commodity.out", commoditySales, commodityName))
 			return;
 	}
 	public static boolean readFile(String path, String fileName, String format, String name, HashMap<String, String> branchMap, HashMap<String, Long> branchSaleMap){
 		BufferedReader br = null;
-		try {//支店定義ファイル
-			File file = new File(path, fileName);//ファイル読み込み
+		try {
+			//ファイル読み込み
+			File file = new File(path, fileName);
 			if(!file.exists()){
 				System.out.println(name + "定義ファイルが存在しません");
 				return false;
 			}
-				FileReader fr = new FileReader(file);
+			FileReader fr = new FileReader(file);
 			br = new BufferedReader(fr);
 			String str;
-			while((str = br.readLine()) != null) {//フォーマット判定
+			while((str = br.readLine()) != null) {
 				String[] items = str.split(",");
 				if(items.length != 2 || !items[0].matches(format)) {
 					System.out.println(name + "定義ファイルのフォーマットが不正です");
 					return false;
 				}
-				branchMap.put(items[0], items[1]);//Map置く
+				//Map置く
+				branchMap.put(items[0], items[1]);
 				branchSaleMap.put(items[0], 0L);
 			}
 		} catch(IOException e) {
-			 System.out.println("予期せぬエラーが発生しました");
+			 System.out.println("予期せぬエラーが発生しました1");
 			return false;
 		} finally {
 			if(br != null){
