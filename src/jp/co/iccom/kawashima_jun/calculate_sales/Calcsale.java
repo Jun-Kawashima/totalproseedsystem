@@ -49,6 +49,7 @@ public class Calcsale {
 			for(int i = 0; i < fileList.size() - 1; i++) {
 				String str = fileList.get(i).substring(0, 8);
 				String stl = fileList.get(i + 1).substring(0, 8);
+			//	System.out.println(str);
 				int now = Integer.parseInt(str);
 				int next = Integer.parseInt(stl);
 				//もし、next - now が1でない＝ファイル間の空き
